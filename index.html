@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TGK7 — Portfolio 3D</title>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== THÈMES ===== */
+    :root {
+      --transition-theme: background 0.35s, color 0.35s, border-color 0.35s, box-shadow 0.35s;
+    }
+    [data-theme="dark"] {
+      --bg:       #1a1a1e;
+      --bg2:      #222228;
+      --card:     #252530;
+      --border:   #333344;
+      --text:     #e8e8f0;
+      --muted:    #888899;
+      --accent:   #b8c4e8;
+      --accent2:  #7e8fc8;
+      --nav-bg:   rgba(26,26,30,0.97);
+      --drawer-bg:rgba(26,26,30,0.97);
+      --sketchfab:#1caad9;
+      --shadow:   rgba(0,0,0,0.4);
+    }
+    [data-theme="light"] {
+      --bg:       #f4f4f8;
+      --bg2:      #eaeaf0;
+      --card:     #ffffff;
+      --border:   #d0d0e0;
+      --text:     #18181f;
+      --muted:    #666677;
+      --accent:   #4a5fa8;
+      --accent2:  #6878c8;
+      --nav-bg:   rgba(244,244,248,0.97);
+      --drawer-bg:rgba(244,244,248,0.97);
+      --sketchfab:#1590ba;
+      --shadow:   rgba(0,0,0,0.1);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: var(--transition-theme);
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.3;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 200;
+      background: var(--nav-bg);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      transition: var(--transition-theme);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-center {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    .nav-center a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.63rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-center a:hover { color: var(--accent); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Bouton thème */
+    .theme-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition-theme), transform 0.2s;
+      flex-shrink: 0;
+    }
+    .theme-btn:hover { color: var(--accent); transform: rotate(20deg); }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px; height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Drawer mobile */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 57px; left: 0; right: 0;
+      background: var(--drawer-bg);
+      backdrop-filter: blur(8px);
+      padding: 20px 24px;
+      z-index: 199;
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      gap: 0;
+      transition: var(--transition-theme);
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover { color: var(--accent); }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; top: 40%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(500px, 90vw); height: min(500px, 90vw);
+      background: radial-gradient(circle, rgba(126,143,200,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .avatar-ring {
+      position: relative;
+      width: clamp(100px, 22vw, 140px);
+      height: clamp(100px, 22vw, 140px);
+      margin-bottom: 28px;
+      animation: fadeDown 0.8s ease both;
+    }
+    .avatar-ring::before {
+      content: '';
+      position: absolute; inset: -4px;
+      border-radius: 50%;
+      border: 2px solid var(--accent2);
+      opacity: 0.6;
+      animation: rotateBorder 8s linear infinite;
+      transition: border-color 0.35s;
+    }
+    @keyframes rotateBorder { to { transform: rotate(360deg); } }
+    .avatar-ring img,
+    .avatar-placeholder {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card);
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      transition: var(--transition-theme);
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.8rem, 14vw, 6.5rem);
+      letter-spacing: 0.3em;
+      color: var(--text);
+      display: flex; align-items: center;
+      gap: clamp(10px, 3vw, 20px);
+      animation: fadeDown 0.8s 0.1s ease both;
+      opacity: 0; line-height: 1;
+      transition: color 0.35s;
+    }
+    .hero-title .dot {
+      width: clamp(7px, 1.5vw, 11px);
+      height: clamp(7px, 1.5vw, 11px);
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      transition: background 0.35s;
+    }
+    .hero-sub {
+      font-family: 'Courier Prime', monospace;
+      font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+      color: var(--muted);
+      line-height: 1.9; max-width: 340px; margin-top: 16px;
+      animation: fadeDown 0.8s 0.2s ease both;
+      opacity: 0;
+      transition: color 0.35s;
+    }
+    .hero-sub span { color: var(--accent); transition: color 0.35s; }
+
+    /* Boutons réseaux sociaux hero */
+    .hero-socials {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 28px;
+      animation: fadeDown 0.8s 0.25s ease both;
+      opacity: 0;
+    }
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      transition: var(--transition-theme), transform 0.15s;
+      white-space: nowrap;
+    }
+    .social-btn svg { width: 14px; height: 14px; flex-shrink: 0; transition: fill 0.2s; }
+    .social-btn:hover { transform: translateY(-2px); border-color: var(--accent2); color: var(--accent); }
+    .social-btn:hover svg { fill: var(--accent); }
+    /* Couleurs spécifiques au hover */
+    .social-btn.sketchfab:hover { border-color: #1caad9; color: #1caad9; }
+    .social-btn.sketchfab:hover svg { fill: #1caad9; }
+    .social-btn.github:hover { border-color: #aaa; color: var(--text); }
+    .social-btn.github:hover svg { fill: var(--text); }
+    .social-btn.youtube:hover { border-color: #ff0000; color: #ff0000; }
+    .social-btn.youtube:hover svg { fill: #ff0000; }
+    .social-btn.discord:hover { border-color: #5865f2; color: #5865f2; }
+    .social-btn.discord:hover svg { fill: #5865f2; }
+
+    .hero-cta {
+      margin-top: 20px;
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: clamp(12px,3vw,16px) clamp(20px,5vw,32px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(0.62rem, 2vw, 0.76rem);
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      transition: var(--transition-theme), transform 0.2s;
+      animation: fadeDown 0.8s 0.35s ease both;
+      opacity: 0;
+    }
+    .hero-cta:hover { background: var(--bg2); border-color: var(--accent2); transform: translateY(-2px); }
+    .hero-cta .icon {
+      width: 30px; height: 30px;
+      background: var(--bg2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; flex-shrink: 0;
+      transition: var(--transition-theme);
+    }
+
+    .scroll-hint {
+      margin-top: 48px;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: var(--muted);
+      font-size: 0.55rem; letter-spacing: 0.25em; text-transform: uppercase;
+      animation: fadeDown 0.8s 0.5s ease both; opacity: 0;
+    }
+    .scroll-hint .line {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, var(--accent2), transparent);
+      animation: scrollPulse 2s infinite;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section-wrap {
+      padding: clamp(48px,8vw,80px) clamp(16px,5vw,40px);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.58rem; letter-spacing: 0.35em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 32px;
+      display: flex; align-items: center; gap: 14px;
+      transition: color 0.35s;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border); transition: background 0.35s;
+    }
+
+    /* ===== GRID ===== */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 660px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 980px) { .projects-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    /* ===== CARD ===== */
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s, var(--transition-theme);
+      opacity: 0; transform: translateY(24px);
+    }
+    .project-card.visible { animation: slideUp 0.55s ease forwards; }
+    .project-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent2);
+      box-shadow: 0 12px 40px var(--shadow);
+    }
+
+    .project-img {
+      width: 100%; aspect-ratio: 16/9;
+      background: var(--bg2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; letter-spacing: 0.3em;
+      color: var(--border); text-transform: uppercase;
+      position: relative; overflow: hidden; flex-shrink: 0;
+      transition: var(--transition-theme);
+    }
+    .project-img::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(128,128,128,0.03) 20px, rgba(128,128,128,0.03) 21px);
+    }
+    .project-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .project-info {
+      padding: clamp(14px,3vw,20px) clamp(14px,3vw,20px) 12px;
+      flex: 1;
+    }
+    .project-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 9px; flex-wrap: wrap; gap: 6px;
+    }
+    .project-year { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em; transition: color 0.35s; }
+    .project-tag {
+      font-size: 0.56rem; letter-spacing: 0.1em;
+      background: rgba(126,143,200,0.1);
+      color: var(--accent2);
+      border: 1px solid rgba(126,143,200,0.2);
+      padding: 3px 10px; border-radius: 20px;
+      transition: var(--transition-theme);
+    }
+    [data-theme="light"] .project-tag {
+      background: rgba(74,95,168,0.08);
+      border-color: rgba(74,95,168,0.2);
+    }
+    .project-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.2rem, 4vw, 1.6rem);
+      letter-spacing: 0.08em; color: var(--text);
+      margin-bottom: 7px; line-height: 1.1;
+      transition: color 0.35s;
+    }
+    .project-desc {
+      font-family: 'Courier Prime', monospace;
+      font-size: clamp(0.68rem, 2vw, 0.76rem);
+      color: var(--muted); line-height: 1.75;
+      transition: color 0.35s;
+    }
+
+    /* ===== SKETCHFAB BTN ===== */
+    .project-actions { padding: 12px clamp(14px,3vw,20px) clamp(14px,3vw,18px); }
+    .btn-sketchfab {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 16px;
+      background: rgba(28,170,217,0.08);
+      border: 1px solid rgba(28,170,217,0.25);
+      border-radius: 8px; color: var(--sketchfab);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.08em;
+      text-decoration: none; text-transform: uppercase;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .btn-sketchfab:hover { background: rgba(28,170,217,0.16); border-color: var(--sketchfab); transform: translateY(-1px); }
+    .btn-sketchfab svg { width: 14px; height: 14px; fill: var(--sketchfab); flex-shrink: 0; }
+    .btn-sketchfab.disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+    /* ===== ABOUT ===== */
+    .about-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: clamp(24px,5vw,36px);
+      transition: var(--transition-theme);
+    }
+    .about-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 600px) { .about-grid { grid-template-columns: 1fr 1fr; } }
+    .about-box p {
+      font-family: 'Courier Prime', monospace;
+      font-size: clamp(0.74rem,2vw,0.84rem);
+      color: var(--muted); line-height: 1.9;
+      transition: color 0.35s;
+    }
+    .about-box p span { color: var(--accent); transition: color 0.35s; }
+    .stats-col { display: flex; flex-direction: column; gap: 12px; }
+    .about-stat {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 4px;
+      transition: var(--transition-theme);
+    }
+    .stat-label { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); transition: color 0.35s; }
+    .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.3rem,4vw,1.8rem); color: var(--accent); letter-spacing: 0.1em; transition: color 0.35s; }
+
+    /* ===== FOOTER SOCIALS ===== */
+    .footer-socials {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .footer-social-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      transition: var(--transition-theme), transform 0.15s, border-color 0.15s;
+    }
+    .footer-social-icon svg { width: 16px; height: 16px; fill: var(--muted); transition: fill 0.2s; }
+    .footer-social-icon:hover { transform: translateY(-3px); }
+    .footer-social-icon.sketchfab:hover { border-color: #1caad9; }
+    .footer-social-icon.sketchfab:hover svg { fill: #1caad9; }
+    .footer-social-icon.github:hover { border-color: #aaa; }
+    .footer-social-icon.github:hover svg { fill: var(--text); }
+    .footer-social-icon.youtube:hover { border-color: #ff0000; }
+    .footer-social-icon.youtube:hover svg { fill: #ff0000; }
+    .footer-social-icon.discord:hover { border-color: #5865f2; }
+    .footer-social-icon.discord:hover svg { fill: #5865f2; }
+    .footer-social-icon.twitter:hover { border-color: #1d9bf0; }
+    .footer-social-icon.twitter:hover svg { fill: #1d9bf0; }
+
+    footer {
+      text-align: center;
+      padding: 28px 16px 32px;
+      font-size: 0.56rem; color: var(--muted);
+      letter-spacing: 0.2em; text-transform: uppercase;
+      border-top: 1px solid var(--border);
+      transition: var(--transition-theme);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.25; }
+      50%       { opacity: 1; }
+    }
+
+    @media (max-width: 600px) {
+      .nav-center { display: none; }
+      .hamburger  { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">TGK7</a>
+    <ul class="nav-center">
+      <li><a href="#projets">Projets</a></li>
+      <li><a href="#about">À propos</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeBtn" title="Changer le thème">🌙</button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="nav-drawer" id="drawer">
+    <a href="#projets" onclick="closeDrawer()">Projets</a>
+    <a href="#about"   onclick="closeDrawer()">À propos</a>
+    <a href="https://sketchfab.com/ton-profil" target="_blank" rel="noopener" onclick="closeDrawer()">Sketchfab ↗</a>
+    <a href="https://github.com/ton-profil"    target="_blank" rel="noopener" onclick="closeDrawer()">GitHub ↗</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="avatar-ring">
+      <!-- Remplace par : <img src="ton-avatar.jpg" alt="TGK7" /> -->
+      <img src="ton-avatar.jpg" alt="TGK7" />
+    </div>
+
+    <h1 class="hero-title">
+      <span class="dot"></span>
+      T G K 7
+      <span class="dot"></span>
+    </h1>
+
+    <p class="hero-sub">
+      Futur artiste 3D, voulant travailler à<br/>
+      <span>Creative Seeds</span>.<br/>
+      Voici mon portfolio.
+    </p>
+
+    <!-- RÉSEAUX SOCIAUX -->
+    <div class="hero-socials">
+      <!-- Remplace les href par tes vrais liens -->
+      <a class="social-btn sketchfab" href="https://sketchfab.com/ton-profil" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0zm0 2.4c5.301 0 9.6 4.299 9.6 9.6s-4.299 9.6-9.6 9.6S2.4 17.301 2.4 12 6.699 2.4 12 2.4zm-.24 3.36v.002l-5.04 2.879v5.76l5.04 2.879 5.04-2.879v-5.76L11.76 5.76zm0 1.68l3.36 1.92-3.36 1.92-3.36-1.92 3.36-1.92zm-3.84 3.12l3.36 1.921v3.839l-3.36-1.92V10.56zm7.68 0v3.84l-3.36 1.92v-3.84l3.36-1.92z" fill="var(--muted)"/></svg>
+        Sketchfab
+      </a>
+      <a class="social-btn github" href="https://github.com/ton-profil" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" fill="var(--muted)"/></svg>
+        GitHub
+      </a>
+      <a class="social-btn youtube" href="https://youtube.com/@ton-chaine" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="var(--muted)"/></svg>
+        YouTube
+      </a>
+      <a class="social-btn discord" href="https://discord.gg/ton-serveur" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="var(--muted)"/></svg>
+        Discord
+      </a>
+    </div>
+
+    <a href="#projets" class="hero-cta">
+      <span class="icon">🖼️</span>
+      Mes créations et mon histoire
+    </a>
+
+    <div class="scroll-hint">
+      <div class="line"></div>
+      Défiler
+    </div>
+  </section>
+
+  <!-- PROJETS -->
+  <section class="section-wrap" id="projets">
+    <div class="section-label">Projets</div>
+    <div class="projects-grid">
+
+      <div class="project-card" data-delay="0">
+        <div class="project-img">
+          <!-- <img src="pause-cafe.jpg" alt="Pause café" /> -->
+          Placeholder image
+        </div>
+        <div class="project-info">
+          <div class="project-meta">
+            <span class="project-year">2026 · 12 ans</span>
+            <span class="project-tag">3D</span>
+          </div>
+          <div class="project-name">Pause café</div>
+          <p class="project-desc">Description de ce projet 3D. Remplace ce texte par ta vraie description une fois prêt.</p>
+        </div>
+        <div class="project-actions">
+          <a class="btn-sketchfab" href="https://sketchfab.com/ton-profil" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0zm0 2.4c5.301 0 9.6 4.299 9.6 9.6s-4.299 9.6-9.6 9.6S2.4 17.301 2.4 12 6.699 2.4 12 2.4zm-.24 3.36v.002l-5.04 2.879v5.76l5.04 2.879 5.04-2.879v-5.76L11.76 5.76zm0 1.68l3.36 1.92-3.36 1.92-3.36-1.92 3.36-1.92zm-3.84 3.12l3.36 1.921v3.839l-3.36-1.92V10.56zm7.68 0v3.84l-3.36 1.92v-3.84l3.36-1.92z"/></svg>
+            Visualiser en 3D
+          </a>
+        </div>
+      </div>
+
+      <div class="project-card" data-delay="100">
+        <div class="project-img">Placeholder image</div>
+        <div class="project-info">
+          <div class="project-meta">
+            <span class="project-year">2026</span>
+            <span class="project-tag">Animation</span>
+          </div>
+          <div class="project-name">Projet 2</div>
+          <p class="project-desc">Ton prochain projet ici. Ajoute ta description et remplace le placeholder.</p>
+        </div>
+        <div class="project-actions">
+          <a class="btn-sketchfab disabled">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0zm0 2.4c5.301 0 9.6 4.299 9.6 9.6s-4.299 9.6-9.6 9.6S2.4 17.301 2.4 12 6.699 2.4 12 2.4zm-.24 3.36v.002l-5.04 2.879v5.76l5.04 2.879 5.04-2.879v-5.76L11.76 5.76zm0 1.68l3.36 1.92-3.36 1.92-3.36-1.92 3.36-1.92zm-3.84 3.12l3.36 1.921v3.839l-3.36-1.92V10.56zm7.68 0v3.84l-3.36 1.92v-3.84l3.36-1.92z"/></svg>
+            Bientôt sur Sketchfab
+          </a>
+        </div>
+      </div>
+
+      <div class="project-card" data-delay="200">
+        <div class="project-img">Placeholder image</div>
+        <div class="project-info">
+          <div class="project-meta">
+            <span class="project-year">À venir</span>
+            <span class="project-tag">Concept</span>
+          </div>
+          <div class="project-name">Projet 3</div>
+          <p class="project-desc">Un autre projet à venir. Ce portfolio grandira avec toi au fil du temps.</p>
+        </div>
+        <div class="project-actions">
+          <a class="btn-sketchfab disabled">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0zm0 2.4c5.301 0 9.6 4.299 9.6 9.6s-4.299 9.6-9.6 9.6S2.4 17.301 2.4 12 6.699 2.4 12 2.4zm-.24 3.36v.002l-5.04 2.879v5.76l5.04 2.879 5.04-2.879v-5.76L11.76 5.76zm0 1.68l3.36 1.92-3.36 1.92-3.36-1.92 3.36-1.92zm-3.84 3.12l3.36 1.921v3.839l-3.36-1.92V10.56zm7.68 0v3.84l-3.36 1.92v-3.84l3.36-1.92z"/></svg>
+            Bientôt sur Sketchfab
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section-wrap" id="about">
+    <div class="section-label">À propos</div>
+    <div class="about-box">
+      <div class="about-grid">
+        <p>
+          Je m'appelle <span>TGK7</span>. Passionné de création 3D depuis tout petit,
+          je construis ce portfolio en avance pour un jour intégrer
+          <span>Creative Seeds</span> en tant qu'artiste 3D.<br/><br/>
+          Chaque projet est une étape dans mon apprentissage.
+          Je continue de créer et de progresser chaque jour.
+        </p>
+        <div class="stats-col">
+          <div class="about-stat">
+            <span class="stat-label">Âge</span>
+            <span class="stat-value" id="age-display"></span>
+          </div>
+          <div class="about-stat">
+            <span class="stat-label">Objectif</span>
+            <span class="stat-value">Creative Seeds</span>
+          </div>
+          <div class="about-stat">
+            <span class="stat-label">Spécialité</span>
+            <span class="stat-value">3D Art</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-socials">
+      <a class="footer-social-icon sketchfab" href="https://sketchfab.com/ton-profil" target="_blank" rel="noopener" title="Sketchfab">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.383 0 0 5.383 0 12s5.383 12 12 12 12-5.383 12-12S18.617 0 12 0zm0 2.4c5.301 0 9.6 4.299 9.6 9.6s-4.299 9.6-9.6 9.6S2.4 17.301 2.4 12 6.699 2.4 12 2.4zm-.24 3.36v.002l-5.04 2.879v5.76l5.04 2.879 5.04-2.879v-5.76L11.76 5.76zm0 1.68l3.36 1.92-3.36 1.92-3.36-1.92 3.36-1.92zm-3.84 3.12l3.36 1.921v3.839l-3.36-1.92V10.56zm7.68 0v3.84l-3.36 1.92v-3.84l3.36-1.92z"/></svg>
+      </a>
+      <a class="footer-social-icon github" href="https://github.com/ton-profil" target="_blank" rel="noopener" title="GitHub">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+      </a>
+      <a class="footer-social-icon youtube" href="https://youtube.com/@ton-chaine" target="_blank" rel="noopener" title="YouTube">
+        <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </a>
+      <a class="footer-social-icon discord" href="https://discord.gg/ton-serveur" target="_blank" rel="noopener" title="Discord">
+        <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      </a>
+      <a class="footer-social-icon twitter" href="https://twitter.com/ton-compte" target="_blank" rel="noopener" title="X / Twitter">
+        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+    </div>
+    © 2026 TGK7 — Portfolio 3D — Tous droits réservés
+  </footer>
+
+  <script>
+    // ===== THÈME =====
+    const html = document.documentElement;
+    const themeBtn = document.getElementById('themeBtn');
+    const saved = localStorage.getItem('theme') || 'dark';
+    html.setAttribute('data-theme', saved);
+    themeBtn.textContent = saved === 'dark' ? '🌙' : '☀️';
+
+    themeBtn.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      themeBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('theme', next);
+    });
+
+    // ===== ÂGE =====
+    function calcAge() {
+      const naissance = new Date(2013, 9, 11);
+      const aujourd = new Date();
+      let age = aujourd.getFullYear() - naissance.getFullYear();
+      const passé = aujourd.getMonth() > naissance.getMonth() ||
+        (aujourd.getMonth() === naissance.getMonth() && aujourd.getDate() >= naissance.getDate());
+      if (!passé) age--;
+      document.getElementById('age-display').textContent = age + ' ans';
+    }
+    calcAge();
+
+    // ===== HAMBURGER =====
+    const btn = document.getElementById('hamburger');
+    const drawer = document.getElementById('drawer');
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    function closeDrawer() {
+      btn.classList.remove('open');
+      drawer.classList.remove('open');
+    }
+    document.addEventListener('click', e => {
+      if (!btn.contains(e.target) && !drawer.contains(e.target)) closeDrawer();
+    });
+
+    // ===== SCROLL REVEAL =====
+    const cards = document.querySelectorAll('.project-card');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), parseInt(entry.target.dataset.delay || 0));
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    cards.forEach(c => obs.observe(c));
+  </script>
+</body>
+</html>
