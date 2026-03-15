@@ -664,8 +664,8 @@
     <div class="about-box">
       <div class="about-grid">
         <p>
-          Je m'appelle <span>TGK7</span>. Passionné de création 3D depuis tout petit,
-          je construis ce portfolio en avance pour un jour intégrer
+          Je m'appelle <span>TGK7</span>. Passionné de création 3D 
+          je construis ce portfolio pour un jour intégrer
           <span>Creative Seeds</span> en tant qu'artiste 3D.<br/><br/>
           Chaque projet est une étape dans mon apprentissage.
           Je continue de créer et de progresser chaque jour.
@@ -727,16 +727,6 @@
     });
 
     // ===== ÂGE =====
-    function calcAge() {
-      const naissance = new Date(2013, 9, 11);
-      const aujourd = new Date();
-      let age = aujourd.getFullYear() - naissance.getFullYear();
-      const passé = aujourd.getMonth() > naissance.getMonth() ||
-        (aujourd.getMonth() === naissance.getMonth() && aujourd.getDate() >= naissance.getDate());
-      if (!passé) age--;
-      document.getElementById('age-display').textContent = age + ' ans';
-    }
-    calcAge();
 
     // ===== HAMBURGER =====
     const btn = document.getElementById('hamburger');
